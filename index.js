@@ -42,8 +42,8 @@ var getResource = function (target, req, res) {
 			uri: target,
 			encoding: null
 		}, function (err) {
-			//console.log('err', err);
-			//console.log('target', target);
+			console.log('err', err);
+			console.log('target', target);
 		})
 			.on('response', function (response) {
 				var bufData = [];
@@ -58,10 +58,6 @@ var getResource = function (target, req, res) {
 						headers: response.headers,
 						data: bufData
 					};
-
-					if(!response.statusCode) {
-						console.log('key', target);
-					}
 
 					addEntryInCache(target, cacheEntry);
 
