@@ -54,8 +54,6 @@ var getResource = function (target, req, res) {
 				response.on('end', function () {
 					//console.log(target);
 					var cacheEntry = {
-						//statusCode: JSON.parse(JSON.stringify(response.statusCode)),
-						//headers: JSON.parse(JSON.stringify(response.headers)),
 						statusCode: response.statusCode,
 						headers: response.headers,
 						data: bufData
