@@ -1,0 +1,25 @@
+{
+  "name": "cachingproxy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codeStryke/cachingproxy.git"
+  },
+  "author": "anand raman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codeStryke/cachingproxy/issues"
+  },
+  "homepage": "https://github.com/codeStryke/cachingproxy#readme",
+  "dependencies": {
+    "nodemon": "^1.8.1",
+    "object-sizeof": "^1.0.6",
+    "request": "^2.67.0"
+  }
+}
