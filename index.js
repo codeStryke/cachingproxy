@@ -1,5 +1,4 @@
 var http = require('http');
-var https = require('https');
 var url = require('url');
 var request = require('request');
 var fs = require('fs');
@@ -38,25 +37,23 @@ var getResource = function (target, req, res) {
 		sendResponse(cache[target], res);
 	}
 	else {
-		request.get({
-			uri: target,
-			encoding: null
-		}, function (err) {
-			console.log('err', err);
-			console.log('target', target);
-		})
+		request
+			.get({
+				uri: target,
+				encoding: null
+				})
 			.on('response', function (response) {
-				var bufData = [];
+				// Since we don't know the size of the response
+				// at this point creating an array of buffers
+				var chunkArray = [];
 				response.on('data', function (chunk) {
-					//console.log(chunk);
-					bufData.push(new Buffer(chunk));
+					chunkArray.push(new Buffer(chunk));
 				});
 				response.on('end', function () {
-					//console.log(target);
 					var cacheEntry = {
 						statusCode: response.statusCode,
 						headers: response.headers,
-						data: bufData
+						data: Buffer.concat(chunkArray)
 					};
 
 					addEntryInCache(target, cacheEntry);
@@ -68,11 +65,7 @@ var getResource = function (target, req, res) {
 };
 
 function addEntryInCache(key, cacheEntry) {
-	var bufData = cacheEntry.data;
-	var bufSize = 0;
-	for(var i = 0; i < bufData.length; i++) {
-		bufSize += bufData[i].length;
-	}
+	var bufSize = cacheEntry.data.length;
 
 	var sizeIncrease = bufSize + sizeof(cacheEntry.headers) + sizeof(cacheEntry.statusCode);
 
@@ -82,6 +75,14 @@ function addEntryInCache(key, cacheEntry) {
 		currentCacheSize += sizeIncrease;
 		currentCacheElementCount += 1;
 		setTimeout(removeEntryFromCache, proxyConfig.cacheDuration, key, sizeIncrease);
+	}
+	else {
+		// If we want to implement a cache eviction strategy it could go here
+		// Right now I'm not evicting entries for cache unless they expire
+		// based on proxyConfig
+		// If users are staying on the same domain or using the back button
+		// more frequently then there is a higher chance of a cache hit if
+		// there is no eviction.
 	}
 }
 
@@ -94,18 +95,18 @@ function removeEntryFromCache(key, size) {
 function sendResponse(cacheEntry, res) {
 	try {
 		res.writeHeader(cacheEntry.statusCode, '', cacheEntry.headers);
-		var bufData = cacheEntry.data;
-		for (var i = 0; i < bufData.length; i++) {
-			res.write(bufData[i]);
-		}
+		res.write(cacheEntry.data);
 		res.end();
 	} catch (err) {
 		console.log('Error sending Response', err, 'cacheEntry', cacheEntry);
 	}
 }
 
+// Live Stats
+/*
 function printCacheStats() {
 	console.log('currentCacheElementCount', currentCacheElementCount, 'currentCacheSize', currentCacheSize);
 }
 
 setInterval(printCacheStats, 1000);
+*/
